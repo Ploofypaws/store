@@ -1,0 +1,56 @@
+
+
+import 'package:flutter/cupertino.dart';
+
+import '../../../utils/constants/colors.dart';
+import '../../../utils/constants/sizes.dart';
+
+class TRoundedImage extends StatelessWidget {
+  const TRoundedImage({
+    super.key,
+    this.border,
+    this.padding,
+    this.onPressed,
+    this.width ,
+    this.height ,
+    this.fit = BoxFit.fill,
+    required this.imageUrl,
+    this.applyImageRadius = true,
+    this.backgroundColor,
+    this.isNetworkingImage = false,
+    this.borderRadius = TSizes.md, this.image, this.isNetworkImage,  this.radius,
+
+  });
+  final double? width, height;
+  final String imageUrl;
+  final bool applyImageRadius;
+  final BoxBorder? border;
+  final Color? backgroundColor;
+  final BoxFit? fit;
+  final EdgeInsetsGeometry? padding;
+  final bool isNetworkingImage;
+  final VoidCallback? onPressed;
+  final double borderRadius;
+
+  final dynamic isNetworkImage;
+
+  final dynamic image;
+
+  final dynamic radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: width,
+        height: 50,
+        padding: padding,
+        decoration:  BoxDecoration(border: border, color: backgroundColor, borderRadius: BorderRadius.circular(borderRadius)),
+        child: ClipRRect(
+            borderRadius: applyImageRadius ? BorderRadius.circular(borderRadius) : BorderRadius.zero,
+            child: Image(fit:fit , image: isNetworkingImage ? NetworkImage(imageUrl): AssetImage(imageUrl) as ImageProvider,)),
+      ),
+    );
+  }
+}

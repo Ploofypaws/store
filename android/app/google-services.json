@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "272784807161",
+    "project_id": "peopleistemergency",
+    "storage_bucket": "peopleistemergency.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:272784807161:android:9d91513235eb9556933e28",
+        "android_client_info": {
+          "package_name": "com.example.emergencyultrastore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC4yjMBlrSinW9ipZpCFrrUNBYw_PEN-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

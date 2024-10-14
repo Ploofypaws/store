@@ -1,6 +1,7 @@
-
-
-import 'package:flutter/material.dart' ;
+import 'package:emergencystore/features/store/screens/cart/controllers/cart_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import '../../../utils/constants/sizes.dart';
 import '../products/product_card/product_card_vertical.dart';
@@ -20,16 +21,16 @@ class TGridLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      itemCount: itemCount,
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount:  2,
-        mainAxisSpacing: TSizes.gridViewSpacing,
-        crossAxisSpacing: TSizes.gridViewSpacing,
-        mainAxisExtent: mainAxisExtent,
-      ),
-      itemBuilder: itemBuilder);
+        itemCount: itemCount,
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: TSizes.gridViewSpacing,
+          crossAxisSpacing: TSizes.gridViewSpacing,
+          mainAxisExtent: mainAxisExtent,
+        ),
+        itemBuilder: itemBuilder);
   }
 }

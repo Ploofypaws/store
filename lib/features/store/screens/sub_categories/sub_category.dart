@@ -1,3 +1,5 @@
+import 'package:emergencystore/features/store/screens/widgets/promo_slider.dart';
+import 'package:emergencystore/utils/constants/image_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -25,14 +27,20 @@ class SubCategoriesScreen extends StatelessWidget {
               // Example banner image
               Container(
                 width: double.infinity,
-                height: 200,
+                height: 250,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/banner5.jpg'),
-                    fit: BoxFit.cover,
-                  ),
+                  // image: const DecorationImage(
+                  //   image: AssetImage('assets/images/banner5.jpg'),
+                  //   fit: BoxFit.cover,
+                  // ),
                 ),
+                child: TPromoSlide(banner: [
+                  TImages.promoBanner1,
+                  TImages.promoBanner2,
+                  TImages.promoBanner3,
+                  TImages.promoBanner4
+                ]),
               ),
               const SizedBox(height: 16),
 
@@ -58,7 +66,8 @@ class SubCategoriesScreen extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               // Simulated navigation to "All Products" screen
-                              Get.to(() => AllProductsScreen(title: subCategory));
+                              Get.to(
+                                  () => AllProductsScreen(title: subCategory));
                             },
                             child: const Text('View All'),
                           ),
@@ -73,7 +82,7 @@ class SubCategoriesScreen extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           itemCount: products.length,
                           separatorBuilder: (context, index) =>
-                          const SizedBox(width: 16),
+                              const SizedBox(width: 16),
                           itemBuilder: (context, index) {
                             return ProductCard(product: products[index]);
                           },

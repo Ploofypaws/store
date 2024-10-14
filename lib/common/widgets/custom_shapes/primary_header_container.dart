@@ -26,46 +26,50 @@ class DotPatternPainter extends CustomPainter {
 // Main Header Container
 class TPrimaryHeaderContainer extends StatelessWidget {
   const TPrimaryHeaderContainer({
-    super.key, required this.child,
+    super.key,
+    required this.child,
   });
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return TCurvedEdgeWidget(
-      child: Container(
-        color: TColors.primaryColor,
-        child: SizedBox(
-          height: 400,
-          child: Stack(
-            children: [
-              // CustomPaint to draw the dot pattern
-              CustomPaint(
-                painter: DotPatternPainter(),
-                child: Container(),
-              ),
-              // Positioned circular containers for design
-              Positioned(
-                top: -150,
-                right: -250,
-                child: TCircularContainer(
-                  backgroundColor: TColors.black.withOpacity(0.1),
-                ),
-              ),
-              Positioned(
-                top: 100,
-                right: -300,
-                child: TCircularContainer(
-                  backgroundColor: TColors.black.withOpacity(0.1),
-                ),
-              ),
-              // Positioned Images at the bottom
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+    return Container(
+      decoration: BoxDecoration(
+          color: TColors.primaryColor,
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(width * 0.03),
+              bottomRight: Radius.circular(width * 0.03))),
+      child: SizedBox(
+        height: height * 0.35,
+        child: Stack(
+          children: [
+            // CustomPaint to draw the dot pattern
+            CustomPaint(
+              painter: DotPatternPainter(),
+              child: Container(),
+            ),
+            // Positioned circular containers for design
+            // Positioned(
+            //   top: -150,
+            //   right: -250,
+            //   child: TCircularContainer(
+            //     backgroundColor: TColors.black.withOpacity(0.1),
+            //   ),
+            // ),
+            // Positioned(
+            //   top: 100,
+            //   right: -300,
+            //   child: TCircularContainer(
+            //     backgroundColor: TColors.black.withOpacity(0.1),
+            //   ),
+            // ),
+            // Positioned Images at the bottom
 
-
-              // Child widget that you pass from outside
-              child,
-            ],
-          ),
+            // Child widget that you pass from outside
+            child,
+          ],
         ),
       ),
     );

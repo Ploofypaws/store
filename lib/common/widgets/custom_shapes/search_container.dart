@@ -1,7 +1,6 @@
 import 'package:emergencystore/features/store/screens/home/searched_items.dart';
 import 'package:flutter/material.dart';
 
-
 class TSearchContainer extends StatelessWidget {
   const TSearchContainer({
     super.key,
@@ -18,21 +17,24 @@ class TSearchContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
     final dark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
-        padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: showBackground ? (dark ? Colors.grey[800] : Colors.grey[100]) : Colors.transparent,
+          color: showBackground
+              ? (dark ? Colors.grey[800] : Colors.white)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
           border: showBorder ? Border.all(color: Colors.grey) : null,
         ),
         child: Row(
           children: [
+            SizedBox(width: width * 0.03),
             Icon(icon, color: Colors.grey),
-            const SizedBox(width: 8.0),
+            SizedBox(width: width * 0.03),
             Expanded(
               child: TextField(
                 decoration: InputDecoration(
@@ -45,7 +47,8 @@ class TSearchContainer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProductSearchScreen(searchQuery: value),
+                      builder: (context) =>
+                          ProductSearchScreen(searchQuery: value),
                     ),
                   );
                 },

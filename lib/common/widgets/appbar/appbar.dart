@@ -1,4 +1,3 @@
-
 import 'package:emergencystore/utils/device/device_utility.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,7 +11,7 @@ class TAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leadingIcon,
     this.actions,
     this.leadingOnProgress,
-    this.showBackArrow = false,  // Set default to true for visibility
+    this.showBackArrow = false, // Set default to true for visibility
   });
 
   final Widget? title;
@@ -30,8 +29,16 @@ class TAppBar extends StatelessWidget implements PreferredSizeWidget {
         backgroundColor: Colors.transparent, // Makes the AppBar transparent
         elevation: 0, // Removes shadow for a flat look
         leading: showBackArrow
-            ? IconButton(onPressed: () => Get.back(), icon: const Icon(Iconsax.arrow_left, color: Colors.deepOrange,))
-            : leadingIcon != null ? IconButton(onPressed: leadingOnProgress, icon: Icon(leadingIcon)) : null,
+            ? IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(
+                  Iconsax.arrow_left,
+                  color: Colors.deepOrange,
+                ))
+            : leadingIcon != null
+                ? IconButton(
+                    onPressed: leadingOnProgress, icon: Icon(leadingIcon))
+                : null,
         title: title,
         actions: actions,
       ),

@@ -1,3 +1,4 @@
+import 'package:emergencystore/features/store/screens/cart/controllers/cart_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,19 +9,14 @@ import 'app.dart';
 import 'data/repositories/authentication_repository.dart';
 import 'firebase_options.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await GetStorage.init();
 
-
-  await Firebase.initializeApp(
-
-    options: DefaultFirebaseOptions.currentPlatform).then((FirebaseApp value) => Get.put(AuthenticationRepository(),
-  ),);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
+      .then((FirebaseApp value) =>
+          {Get.put(AuthenticationRepository()), Get.put(CartController())});
 
   runApp(const MyApp());
 }
-
-
-

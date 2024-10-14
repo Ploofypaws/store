@@ -1,13 +1,44 @@
+import 'package:emergencystore/data/repositories/authentication_repository.dart';
+import 'package:emergencystore/features/authentication/login/sign_in/sign_in.dart';
 import 'package:emergencystore/features/personalization/screens/address/address.dart';
 import 'package:emergencystore/features/personalization/screens/profile/profile.dart';
 import 'package:emergencystore/features/store/screens/cart/cart.dart';
 import 'package:emergencystore/features/store/screens/order/order.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  SettingsScreen({super.key});
+  // Firebase authentication instance
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  void _signOut(BuildContext context) async {
+    try {
+      //Signing out the user
+      AuthenticationRepository.instance.logoutEmailandPassword();
+
+      // Save user login state locally
+      AuthenticationRepository.instance.clearUserLoggedInState();
+
+      // If successful, navigate to the home page
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Successfully signed out!")),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SignInPage()), // Navigate to home page after sign in
+      );
+    } on FirebaseAuthException catch (e) {
+      // Handle sign-in errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.message}")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +52,13 @@ class SettingsScreen extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const ProfileScreen(),),);
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
+                    );
                   },
                   child: Container(
                     height: 200,
@@ -45,7 +81,8 @@ class SettingsScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 60, color: Colors.grey[700]),
+                      child:
+                          Icon(Icons.person, size: 60, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 10),
                     const Text(
@@ -81,7 +118,8 @@ class SettingsScreen extends StatelessWidget {
               title: 'My Cart',
               subtitle: 'Add, remove products and move to checkout',
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>CartPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => CartPage()));
               },
             ),
             _buildProfileOptionCard(
@@ -90,7 +128,10 @@ class SettingsScreen extends StatelessWidget {
               subtitle: 'In progress and completed orders',
               onTap: () {
                 Get.to(() {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const OrderScreen()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const OrderScreen()));
                 });
               },
             ),
@@ -175,13 +216,14 @@ class SettingsScreen extends StatelessWidget {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.grey[100],
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
               onPressed: () {
-                // Add your logout logic here
+                _signOut(context);
               },
             ),
 
@@ -236,7 +278,11 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (trailing != null) trailing else const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                if (trailing != null)
+                  trailing
+                else
+                  const Icon(Icons.arrow_forward_ios,
+                      size: 16, color: Colors.grey),
               ],
             ),
           ),

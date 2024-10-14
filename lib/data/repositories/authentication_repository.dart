@@ -27,7 +27,9 @@ class AuthenticationRepository extends GetxController {
     } else {
       bool isFirstTime = deviceStorage.read('isFirstTime') ?? true;
       deviceStorage.writeIfNull('isFirstTime', true);
-      isFirstTime ? Get.offAll(() => OnboardingScreen()) : Get.offAll(() => SignInPage());
+      isFirstTime
+          ? Get.offAll(() => OnboardingScreen())
+          : Get.offAll(() => SignInPage());
     }
   }
 
@@ -37,6 +39,7 @@ class AuthenticationRepository extends GetxController {
 
   Future<void> clearUserLoggedInState() async {
     deviceStorage.write('isLoggedIn', false);
+    deviceStorage.write('isFirstTime', true);
   }
 
   // Register method (kept for reference)
@@ -45,6 +48,17 @@ class AuthenticationRepository extends GetxController {
     try {
       return await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message);
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> logoutEmailandPassword() async {
+    try {
+      await _auth.signOut();
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message);
     } catch (e) {

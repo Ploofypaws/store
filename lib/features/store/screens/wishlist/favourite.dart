@@ -10,29 +10,32 @@ import 'package:get/get.dart';
 
 import 'package:iconsax/iconsax.dart';
 
-
 class FavoriteScreen extends StatelessWidget {
   const FavoriteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: TAppBar(
-        title: Text('Wishlist', style: Theme.of(context).textTheme.headlineMedium),
+        title:
+            Text('Wishlist', style: Theme.of(context).textTheme.headlineMedium),
         actions: [
-          TCircularIcon(icon: Iconsax.add, onPressed: () => Get.offAll(const NavigationMenu())),
+          TCircularIcon(
+              icon: Iconsax.add,
+              onPressed: () => Get.offAll(const NavigationMenu())),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(TSizes.defaultSpace),
-
-    child: TGridLayout(
+          padding: const EdgeInsets.all(TSizes.defaultSpace),
+          child: TGridLayout(
             itemCount: 4,
-            itemBuilder: (_, index) => const TProductCardVertical(
+            itemBuilder: (_, index) => TProductCardVertical(
+              title: 'Something',
+              price: '0',
+              url:
+                  'https://imgs.search.brave.com/Gc-zjR3S-X5YqDGlcYNXG3Ly4sT8i8NFeEivMVHFmcI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuaW5kZXBlbmRl/bnQuY28udWsvMjAy/Mi8wNy8xNS8wOS9N/YWdsaXRlJTIwTUwx/NTBMUlglMjByZWNo/YXJnZWFibGUlMjB0/b3JjaC5qcGc',
             ),
-          )
-        ),
+          )),
     );
   }
 }

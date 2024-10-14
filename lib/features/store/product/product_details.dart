@@ -2,20 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 class ProductDetailPage extends StatefulWidget {
+  const ProductDetailPage(
+      {super.key,
+      this.title = 'something',
+      this.price = '0',
+      this.seller = 'some one',
+      this.url = 'https://via.placeholder.com/300'});
+  final String title;
+  final String seller;
+  final String price;
+  final String url;
+
   @override
   _ProductDetailPageState createState() => _ProductDetailPageState();
 }
 
-class _ProductDetailPageState extends State<ProductDetailPage> with SingleTickerProviderStateMixin {
+class _ProductDetailPageState extends State<ProductDetailPage>
+    with SingleTickerProviderStateMixin {
   int selectedImageIndex = 0;
   int quantity = 1;
-  List<String> productImages = [
-    'https://via.placeholder.com/300',
-    'https://via.placeholder.com/300/0000FF',
-    'https://via.placeholder.com/300/FF0000',
-    'https://via.placeholder.com/300/00FF00',
-    'https://via.placeholder.com/300/FFFF00',
-  ];
+
   String selectedSize = 'L';
   List<Map<String, dynamic>> cartItems = [];
   LocationData? _locationData;
@@ -36,6 +42,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
+    List<String> productImages = [
+      widget.url,
+      widget.url,
+      widget.url,
+      widget.url,
+      widget.url,
+    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product Details'),
@@ -103,7 +116,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(productImages.length, (index) {
+                            children:
+                                List.generate(productImages.length, (index) {
                               return _buildImageSelectionOption(index);
                             }),
                           ),
@@ -111,12 +125,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Hiking Gloves',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    Text(
+                      widget.title,
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const Text(
-                      'Green Gloves',
+                    Text(
+                      widget.seller,
                       style: TextStyle(color: Colors.grey),
                     ),
                     const SizedBox(height: 5),
@@ -142,7 +157,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                     const SizedBox(height: 20),
                     const Text(
                       'Size',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -160,7 +176,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       children: [
                         const Text(
                           'Quantity',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Row(
                           children: [
@@ -176,7 +193,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                             ),
                             Text(
                               '$quantity',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             IconButton(
                               icon: const Icon(Icons.add_circle_outline),
@@ -207,18 +225,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                               Tab(text: 'Reviews'),
                             ],
                           ),
-                          Container(
+                          SizedBox(
                             height: 200, // Adjust height as needed
                             child: TabBarView(
                               controller: _tabController,
                               children: const [
                                 Padding(
                                   padding: EdgeInsets.all(16.0),
-                                  child: Text('Lorem Ipsum is simply dummy text of the printing and typesetting industry...'),
+                                  child: Text(
+                                      'Lorem Ipsum is simply dummy text of the printing and typesetting industry...'),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(16.0),
-                                  child: Text('Specifications content goes here...'),
+                                  child: Text(
+                                      'Specifications content goes here...'),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(16.0),
@@ -249,7 +269,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       style: TextStyle(color: Colors.grey),
                     ),
                     Text(
-                      'Rs ${(298 * quantity).toStringAsFixed(2)}',
+                      'Rs ${(double.parse(widget.price) * quantity).toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -262,7 +282,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                     _getLocationAndShowBottomSheet(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40.0, vertical: 16.0),
                     backgroundColor: Colors.black,
                   ),
                   child: const Row(
@@ -383,4 +404,3 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
     );
   }
 }
-

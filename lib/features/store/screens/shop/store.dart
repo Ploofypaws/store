@@ -1,4 +1,3 @@
-
 import 'package:emergencystore/common/brands/brand_name.dart';
 import 'package:emergencystore/common/widgets/products.cart/cart_menu_icon.dart';
 import 'package:emergencystore/common/widgets/products/product_card/product_card_vertical.dart';
@@ -22,17 +21,18 @@ class StoreScreen extends StatelessWidget {
     return DefaultTabController(
       length: 5,
       child: Scaffold(
-        appBar: AppBar(automaticallyImplyLeading: false,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.black,
           title: const Text(
-            'Store',style: TextStyle(color: Colors.white),
-
+            'Store',
+            style: TextStyle(color: Colors.white),
           ),
-
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 4.0),
-              child: TCartCounterIcons(onPressed: () {}, iconColor: Colors.black),
+              child:
+                  TCartCounterIcons(onPressed: () {}, iconColor: Colors.black),
             ),
           ],
         ),
@@ -99,15 +99,14 @@ class StoreScreen extends StatelessWidget {
                                       padding: const EdgeInsets.all(TSizes.sm),
                                       decoration: BoxDecoration(
                                         color:
-                                        THelperFunctions.isDarkMode(context)
-                                            ? TColors.black
-                                            : TColors.white,
+                                            THelperFunctions.isDarkMode(context)
+                                                ? TColors.black
+                                                : TColors.white,
                                         borderRadius:
-                                        BorderRadius.circular(100),
+                                            BorderRadius.circular(100),
                                       ),
                                       child: const Image(
                                         image: AssetImage(TImages.torchIcon),
-
                                       ),
                                     ),
                                   ),
@@ -120,7 +119,7 @@ class StoreScreen extends StatelessWidget {
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Padding(
                                           padding: const EdgeInsets.only(
@@ -224,38 +223,50 @@ class TCategoryTab extends StatelessWidget {
     return ListView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        children: [Padding(
-          padding: const EdgeInsets.all(TSizes.defaultSpace),
-          child: Column(
-            children: [
-              //Brands
-              const TBrandShowcase(
-                images: [
-                  TImages.torchIcon,
-                  TImages.bagpackIcon,
-                  TImages.campIcon,
-                ],
-              ),
-              const TBrandShowcase(
-                images: [
-                  TImages.productImageLap1,
-                  TImages.shoesIcon,
-                  TImages.glovesIcon,
-                ],
-              ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(TSizes.defaultSpace),
+            child: Column(
+              children: [
+                //Brands
+                const TBrandShowcase(
+                  images: [
+                    TImages.torchIcon,
+                    TImages.bagpackIcon,
+                    TImages.campIcon,
+                  ],
+                ),
+                const TBrandShowcase(
+                  images: [
+                    TImages.productImageLap1,
+                    TImages.shoesIcon,
+                    TImages.glovesIcon,
+                  ],
+                ),
 
-              //Products
-              TSectionHeading(title: 'You might like',onPressed: (){},),
-              const SizedBox(height: TSizes.spaceBtwItems,),
+                //Products
+                TSectionHeading(
+                  title: 'You might like',
+                  onPressed: () {},
+                ),
+                const SizedBox(
+                  height: TSizes.spaceBtwItems,
+                ),
 
-              TGridLayout(itemCount: 4, itemBuilder: (_,context) => const TProductCardVertical()),
-              const SizedBox(
-                height: TSizes.spaceBtwSections,
-              )
-            ],
+                TGridLayout(
+                    itemCount: 4,
+                    itemBuilder: (_, context) => TProductCardVertical(
+                          title: 'Something',
+                          price: '0',
+                          url:
+                              'https://imgs.search.brave.com/Gc-zjR3S-X5YqDGlcYNXG3Ly4sT8i8NFeEivMVHFmcI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuaW5kZXBlbmRl/bnQuY28udWsvMjAy/Mi8wNy8xNS8wOS9N/YWdsaXRlJTIwTUwx/NTBMUlglMjByZWNo/YXJnZWFibGUlMjB0/b3JjaC5qcGc',
+                        )),
+                const SizedBox(
+                  height: TSizes.spaceBtwSections,
+                )
+              ],
+            ),
           ),
-        ),
-        ]
-    );
+        ]);
   }
 }

@@ -29,28 +29,39 @@ class TVerticalImageText extends StatelessWidget {
         child: Column(
           children: [
             /// ---> Circular icon
-            Container(
-              width: 60,
-              height: 56,
-              padding: const EdgeInsets.all(TSizes.sm),
-              decoration: BoxDecoration(
-                color: Colors.black, // No null check needed
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Center(
-                child: Image(
-                  image: AssetImage(image),
-                  fit: BoxFit.cover, // Try cover or contain for better aspect ratio handling
-                ),
+            CircleAvatar(
+              backgroundColor: Colors.black,
+              radius: 20,
+              child: Image(
+                image: AssetImage(image),
+                fit: BoxFit
+                    .fill, // Try cover or contain for better aspect ratio handling
               ),
             ),
+            // Container(
+            //   width: 60,
+            //   height: 56,
+            //   padding: const EdgeInsets.all(TSizes.sm),
+            //   decoration: BoxDecoration(
+            //     color: Colors.black, // No null check needed
+            //     borderRadius: BorderRadius.circular(100),
+            //   ),
+            //   child: Center(
+            //     child: Image(
+            //       image: AssetImage(image),
+            //       fit: BoxFit.cover, // Try cover or contain for better aspect ratio handling
+            //     ),
+            //   ),
+            // ),
             /// ---> Text
             const SizedBox(height: TSizes.spaceBtwItems / 2),
             SizedBox(
-
               child: Text(
                 title,
-                style: Theme.of(context).textTheme.labelMedium!.apply(color: TColors.primaryColor),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium!
+                    .apply(color: TColors.primaryColor),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

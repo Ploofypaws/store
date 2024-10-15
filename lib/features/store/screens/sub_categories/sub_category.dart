@@ -1,22 +1,61 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencystore/features/store/screens/widgets/promo_slider.dart';
 import 'package:emergencystore/utils/constants/image_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class SubCategoriesScreen extends StatelessWidget {
+class SubCategoriesScreen extends StatefulWidget {
   const SubCategoriesScreen({super.key, required this.category});
-
-  final String category; // Changed to simple String for demo purposes
+  final String category;
 
   @override
-  Widget build(BuildContext context) {
-    // Example data for subcategories and products
-    final List<String> subCategories = ['SubCategory 1', 'SubCategory 2'];
-    final List<String> products = ['Product 1', 'Product 2', 'Product 3'];
+  State<SubCategoriesScreen> createState() => _SubCategoriesScreenState();
+}
 
+class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
+  // Example data for subcategories and products
+  List<String> subCategories = [];
+  final List<String> products = ['Product 1', 'Product 2', 'Product 3'];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSubCategories();
+  }
+
+  // Fetch subcategories from Firestore
+  Future<void> _fetchSubCategories() async {
+    try {
+      print(widget.category);
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection('categories')
+          .doc(widget.category)
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        // Check if 'sub' field exists and is a List
+        List<dynamic>? fetchedSubCategories = doc['sub'];
+        if (fetchedSubCategories != null) {
+          setState(() {
+            subCategories = fetchedSubCategories.cast<String>();
+          });
+        } else {
+          print("Subcategories not found or invalid format.");
+        }
+      } else {
+        print("Document does not exist!");
+      }
+    } catch (e) {
+      print('Error fetching subcategories: $e');
+    }
+  }
+
+  // Changed to simple String for demo purposes
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(category),
+        title: Text(widget.category),
         leading: const BackButton(),
       ),
       body: SingleChildScrollView(
@@ -30,10 +69,6 @@ class SubCategoriesScreen extends StatelessWidget {
                 height: 250,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  // image: const DecorationImage(
-                  //   image: AssetImage('assets/images/banner5.jpg'),
-                  //   fit: BoxFit.cover,
-                  // ),
                 ),
                 child: TPromoSlide(banner: [
                   TImages.promoBanner1,

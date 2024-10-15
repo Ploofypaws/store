@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencystore/features/authentication/login/sign_in/sign_in.dart';
 import 'package:emergencystore/features/authentication/screens/onboarding.dart';
 import 'package:emergencystore/navigation_menu.dart';
@@ -35,6 +36,27 @@ class AuthenticationRepository extends GetxController {
 
   Future<void> saveUserLoggedInState() async {
     deviceStorage.write('isLoggedIn', true);
+  }
+
+  Future<bool> hasLocation() async {
+    String userId =
+        FirebaseAuth.instance.currentUser!.uid; // Get the current user's ID
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+    // Check if the document exists
+    if (userDoc.exists) {
+      // Cast the document data to a Map
+      Map<String, dynamic>? data = userDoc.data() as Map<String, dynamic>?;
+
+      // Check if 'location' field exists and if it's a list that is not empty
+      if (data != null && data.containsKey('location')) {
+        var location = data['location'];
+        return location is List &&
+            location.isNotEmpty; // Return true only if it's a non-empty list
+      }
+    }
+    return false; // User document does not exist or location field is empty
   }
 
   Future<void> clearUserLoggedInState() async {

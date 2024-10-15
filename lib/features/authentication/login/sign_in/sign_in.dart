@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencystore/data/repositories/authentication_repository.dart';
 import 'package:emergencystore/features/authentication/login/forgot/forgot_password.dart';
 import 'package:emergencystore/features/authentication/login/sign_up/sign_up.dart';
 import 'package:emergencystore/navigation_menu.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 
 class SignInPage extends StatelessWidget {
   SignInPage({super.key});
@@ -16,13 +19,84 @@ class SignInPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  void _fetchLocation() async {
+    final location = Location();
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    final locationData = await location.getLocation();
+    final String mapboxAccessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+
+    final url =
+        'https://api.mapbox.com/geocoding/v5/mapbox.places/${locationData.longitude},${locationData.latitude}.json?access_token=$mapboxAccessToken';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        // Assuming you want the first result's place name
+        return data['features'][0]['place_name'] ?? 'No Adress';
+      } else {
+        throw Exception('Failed to load location');
+      }
+    } catch (e) {
+      print('Error fetching location: $e');
+      throw 'Error fetching location';
+    }
+  }
+
+  void _showDialog(BuildContext context, String address) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Set the Location'),
+          content: Text(address),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                String userId = _auth.currentUser!.uid;
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userId)
+                    .update({
+                  'location': FieldValue.arrayUnion(
+                      [address]), // Add address to 'location' array
+                });
+                MaterialPageRoute(
+                    builder: (context) => NavigationMenu()); // Close the dialog
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Method to handle sign-in using Firebase
   void _signIn(BuildContext context) async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -34,10 +108,14 @@ class SignInPage extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Successfully signed in!")),
       );
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const NavigationMenu()), // Navigate to home page after sign in
+        MaterialPageRoute(
+            builder: (context) =>
+                NavigationMenu()), // Navigate to home page after sign in
       );
+      // _showDialog(context, 'No Adress at present');
     } on FirebaseAuthException catch (e) {
       // Handle sign-in errors
       ScaffoldMessenger.of(context).showSnackBar(
@@ -94,7 +172,8 @@ class SignInPage extends StatelessWidget {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14.0),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 10),
                     ),
                   ),
                 ),
@@ -118,7 +197,8 @@ class SignInPage extends StatelessWidget {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14.0),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 10),
                       suffixIcon: GestureDetector(
                         onTap: () {
                           // Add functionality to toggle password visibility
@@ -136,7 +216,10 @@ class SignInPage extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ForgotPasswordScreen()));
                   },
                   child: const Text(
                     'Forgot Password?',
@@ -172,7 +255,8 @@ class SignInPage extends StatelessWidget {
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => SignUpPage()));
                   },
                   child: const Text(
                     "Don't have an account? Create One",
@@ -185,12 +269,14 @@ class SignInPage extends StatelessWidget {
               // Line Divider with OR
               const Row(
                 children: [
-                  Expanded(child: Divider(color: Color(0xFFD4D4D4), thickness: 1.0)),
+                  Expanded(
+                      child: Divider(color: Color(0xFFD4D4D4), thickness: 1.0)),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text('OR', style: TextStyle(color: Colors.black)),
                   ),
-                  Expanded(child: Divider(color: Color(0xFFD4D4D4), thickness: 1.0)),
+                  Expanded(
+                      child: Divider(color: Color(0xFFD4D4D4), thickness: 1.0)),
                 ],
               ),
               const SizedBox(height: 10),

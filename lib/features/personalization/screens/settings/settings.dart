@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencystore/data/repositories/authentication_repository.dart';
 import 'package:emergencystore/features/authentication/login/sign_in/sign_in.dart';
 import 'package:emergencystore/features/personalization/screens/address/address.dart';
@@ -9,10 +10,39 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
-class SettingsScreen extends StatelessWidget {
-  SettingsScreen({super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   // Firebase authentication instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  String name = '';
+  String email = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    final userDocRef = FirebaseFirestore.instance.collection('users').doc(uid);
+
+    final userSnapshot = await userDocRef.get();
+    final String username =
+        '${userSnapshot.data()!['firstName']} ${userSnapshot.data()!['lastName']}';
+    final String userEmail = userSnapshot.data()!['email'];
+    setState(() {
+      name = username;
+      email = userEmail;
+    });
+  }
 
   void _signOut(BuildContext context) async {
     try {
@@ -85,16 +115,16 @@ class SettingsScreen extends StatelessWidget {
                           Icon(Icons.person, size: 60, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Jaskeerat Singh',
+                    Text(
+                      name,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    const Text(
-                      'singhjaskeerat753@gmail.com',
+                    Text(
+                      email,
                       style: TextStyle(
                         color: Colors.white70,
                       ),

@@ -12,12 +12,12 @@ class THomeCategory extends StatelessWidget {
   // List of icon paths and titles for the categories
   final List<Map<String, String>> categories = const [
     {'icon': TImages.bagpackIcon, 'title': 'Bagpack'},
+    {'icon': TImages.shoesIcon, 'title': 'Shoes'},
+    {'icon': TImages.torchIcon, 'title': 'Torch'},
     {'icon': TImages.campIcon, 'title': 'Camp'},
     {'icon': TImages.fireIcon, 'title': 'Fire'},
     {'icon': TImages.glovesIcon, 'title': 'Gloves'},
     {'icon': TImages.medikitIcon, 'title': 'Medikit'},
-    {'icon': TImages.shoesIcon, 'title': 'Shoes'},
-    {'icon': TImages.torchIcon, 'title': 'Torch'},
   ];
 
   @override
@@ -34,8 +34,9 @@ class THomeCategory extends StatelessWidget {
             image: category['icon']!, // Image path from the category list
             title: category['title']!, // Title from the category list
             onTap: () => Get.to(() => SubCategoriesScreen(
-              category: category['title']!, // Pass category title to the screen
-            )),
+                  category:
+                      category['title']!, // Pass category title to the screen
+                )),
           );
         },
       ),

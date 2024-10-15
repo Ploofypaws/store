@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergencystore/common/widgets/products/product_card/product_card_horizontal.dart';
+import 'package:emergencystore/features/store/screens/sub_categories/all_products.dart';
+import 'package:emergencystore/features/store/screens/sub_categories/models/product_model.dart';
 import 'package:emergencystore/features/store/screens/widgets/promo_slider.dart';
 import 'package:emergencystore/utils/constants/image_strings.dart';
+import 'package:emergencystore/utils/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -13,9 +17,9 @@ class SubCategoriesScreen extends StatefulWidget {
 }
 
 class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
-  // Example data for subcategories and products
   List<String> subCategories = [];
-  final List<String> products = ['Product 1', 'Product 2', 'Product 3'];
+  Map<String, List<Product>> subCategoryProducts =
+      {}; // Store Product objects for each subcategory
 
   @override
   void initState() {
@@ -26,19 +30,18 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   // Fetch subcategories from Firestore
   Future<void> _fetchSubCategories() async {
     try {
-      print(widget.category);
       DocumentSnapshot doc = await FirebaseFirestore.instance
           .collection('categories')
           .doc(widget.category)
           .get();
 
       if (doc.exists && doc.data() != null) {
-        // Check if 'sub' field exists and is a List
         List<dynamic>? fetchedSubCategories = doc['sub'];
         if (fetchedSubCategories != null) {
           setState(() {
             subCategories = fetchedSubCategories.cast<String>();
           });
+          _fetchProductsForSubCategories(); // Fetch products for each subcategory
         } else {
           print("Subcategories not found or invalid format.");
         }
@@ -50,9 +53,31 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
     }
   }
 
-  // Changed to simple String for demo purposes
+  // Fetch products for each subcategory
+  Future<void> _fetchProductsForSubCategories() async {
+    try {
+      for (String subCategory in subCategories) {
+        QuerySnapshot productSnapshot = await FirebaseFirestore.instance
+            .collection('products')
+            .where('sub', isEqualTo: subCategory)
+            .get();
+
+        List<Product> products = productSnapshot.docs
+            .map((doc) => Product.fromFirestore(doc))
+            .toList();
+
+        setState(() {
+          subCategoryProducts[subCategory] = products;
+        });
+      }
+    } catch (e) {
+      print('Error fetching products: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.category),
@@ -60,10 +85,9 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0), // Simplified padding
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Example banner image
               Container(
                 width: double.infinity,
                 height: 250,
@@ -78,56 +102,65 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                 ]),
               ),
               const SizedBox(height: 16),
-
-              // List of subcategories and products
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: subCategories.length,
-                itemBuilder: (context, index) {
-                  final subCategory = subCategories[index];
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Subcategory heading
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            subCategory,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              // Simulated navigation to "All Products" screen
-                              Get.to(
-                                  () => AllProductsScreen(title: subCategory));
-                            },
-                            child: const Text('View All'),
-                          ),
-                        ],
+              subCategories.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Coming Soon',
+                        style: TextStyle(fontSize: 20),
                       ),
-                      const SizedBox(height: 8),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: subCategories.length,
+                      itemBuilder: (context, index) {
+                        final subCategory = subCategories[index];
+                        final products = subCategoryProducts[subCategory] ?? [];
 
-                      // Products list
-                      SizedBox(
-                        height: 120,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: products.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(width: 16),
-                          itemBuilder: (context, index) {
-                            return ProductCard(product: products[index]);
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  );
-                },
-              ),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  subCategory,
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Get.to(() =>
+                                        AllProductsScreen(title: subCategory));
+                                  },
+                                  child: const Text('View All'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: height * 0.14,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: products.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(width: 16),
+                                itemBuilder: (context, index) {
+                                  final product = products[index];
+                                  return ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: TProductCardHorizontal(
+                                      title: product.name,
+                                      price: product.price,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+                        );
+                      },
+                    ),
             ],
           ),
         ),
@@ -136,52 +169,69 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   }
 }
 
-// Example AllProductsScreen for navigation
-class AllProductsScreen extends StatelessWidget {
-  const AllProductsScreen({super.key, required this.title});
+// class ProductCard extends StatelessWidget {
+//   final Product product;
 
-  final String title;
+//   const ProductCard({super.key, required this.product});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: const Center(
-        child: Text('All products will be displayed here'),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: 100,
+//       padding: const EdgeInsets.all(8.0),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(8),
+//         border: Border.all(color: Colors.grey.shade300),
+//       ),
+//       child: Column(
+//         children: [
+//           const Icon(Icons.shopping_bag, size: 40),
+//           const SizedBox(height: 8),
+//           Text(
+//             product.name,
+//             style: Theme.of(context).textTheme.bodyMedium,
+//             textAlign: TextAlign.center,
+//           ),
+//           const SizedBox(height: 8),
+//           Text(
+//             product.price,
+//             style: Theme.of(context).textTheme.bodySmall,
+//             textAlign: TextAlign.center,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // Example ProductCard widget
-class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required this.product});
+// class ProductCard extends StatelessWidget {
+//   const ProductCard({super.key, required this.product});
 
-  final String product;
+//   final String product;
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.shopping_bag, size: 40),
-          const SizedBox(height: 8),
-          Text(
-            product,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: 100,
+//       padding: const EdgeInsets.all(8.0),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(8),
+//         border: Border.all(color: Colors.grey.shade300),
+//       ),
+//       child: Column(
+//         children: [
+//           const Icon(Icons.shopping_bag, size: 40),
+//           const SizedBox(height: 8),
+//           Text(
+//             product,
+//             style: Theme.of(context).textTheme.bodyMedium,
+//             textAlign: TextAlign.center,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

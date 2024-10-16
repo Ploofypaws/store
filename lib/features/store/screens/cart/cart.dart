@@ -5,6 +5,7 @@ import 'package:emergencystore/features/personalization/controllers/address_cont
 import 'package:emergencystore/features/personalization/models/address_model.dart';
 import 'package:emergencystore/features/personalization/screens/address/add_new_address.dart';
 import 'package:emergencystore/features/store/screens/cart/controllers/cart_controller.dart';
+import 'package:emergencystore/features/store/screens/cart/models/cart_item.dart';
 import 'package:emergencystore/features/store/screens/checkout/checkout.dart';
 import 'package:emergencystore/navigation_menu.dart';
 import 'package:emergencystore/razorpay/payment_razorpay.dart';
@@ -64,8 +65,6 @@ class _CartPageState extends State<CartPage> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     final CartController cartController = Get.put(CartController());
-    double totalCartAmount = cartController.cartItems
-        .fold(0, (sum, item) => sum + double.parse(item.price));
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -109,8 +108,15 @@ class _CartPageState extends State<CartPage> {
                           itemCount: cartController.cartItems.length,
                           itemBuilder: (context, index) {
                             final item = cartController.cartItems[index];
-                            return _buildCartItem(item.title, item.description,
-                                item.price, item.image, height, width);
+                            return _buildCartItem(
+                                item,
+                                // item.title,
+                                // item.description,
+                                // item.price,
+                                // item.image,
+                                height,
+                                width,
+                                item.quantity.toString());
                           }),
                     ),
 
@@ -168,7 +174,7 @@ class _CartPageState extends State<CartPage> {
                         const Text('Total (Including VAT)',
                             style: TextStyle(fontSize: 16)),
                         Text(
-                          'Rs $totalCartAmount',
+                          cartController.totalCartPrice.toString(),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -203,9 +209,10 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildCartItem(String title, String description, String price,
-      String image, double height, double width) {
+  Widget _buildCartItem(
+      CartItem item, double height, double width, String quantity) {
     final dark = THelperFunctions.isDarkMode(context);
+    final CartController cartController = Get.put(CartController());
     return Padding(
       padding: EdgeInsets.symmetric(vertical: height * 0.005),
       child: SizedBox(
@@ -223,7 +230,7 @@ class _CartPageState extends State<CartPage> {
                         BorderRadius.circular(TSizes.productImageRadius),
                     color: dark ? TColors.darkerGrey : TColors.white,
                   ),
-                  child: Image.network(image,
+                  child: Image.network(item.image,
                       width: width * 0.24, height: height * 0.12),
                 ),
               ), // Replace with actual image
@@ -233,14 +240,14 @@ class _CartPageState extends State<CartPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      item.title,
                       style: TextStyle(
                           fontSize: width * 0.045, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(width: width * 0.4, child: Text(description)),
+                    SizedBox(width: width * 0.4, child: Text(item.description)),
                     Row(
                       children: [
-                        Text('Rs $price',
+                        Text('Rs ${item.price}',
                             style: TextStyle(
                                 fontSize: width * 0.04,
                                 fontWeight: FontWeight.bold)),
@@ -254,17 +261,29 @@ class _CartPageState extends State<CartPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text(
-                                '-',
-                                style: TextStyle(fontSize: width * 0.04),
+                              GestureDetector(
+                                onTap: () {
+                                  cartController.removeFromCart(item);
+                                  setState(() {});
+                                },
+                                child: Text(
+                                  '-',
+                                  style: TextStyle(fontSize: width * 0.04),
+                                ),
                               ),
                               Text(
-                                '$quantity',
+                                quantity,
                                 style: TextStyle(fontSize: width * 0.04),
                               ),
-                              Text(
-                                '+',
-                                style: TextStyle(fontSize: width * 0.04),
+                              GestureDetector(
+                                onTap: () {
+                                  cartController.addToCart(item);
+                                  setState(() {});
+                                },
+                                child: Text(
+                                  '+',
+                                  style: TextStyle(fontSize: width * 0.04),
+                                ),
                               ),
                             ],
                           ),

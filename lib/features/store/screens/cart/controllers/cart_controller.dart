@@ -6,63 +6,103 @@ import 'package:get/get.dart';
 class CartController extends GetxController {
   var cartItems = <CartItem>[].obs; // Observable list of cart items
 
-  Future<void> addToCart(CartItem item) async {
+  Future<void> addToCart(CartItem newItem) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
     final userDocRef =
         FirebaseFirestore.instance.collection('users').doc(userId);
 
-    Map<String, String> cartItem = item.toMap();
+    // Check if item already exists in the cart
+    int index = cartItems.indexWhere((cartItem) =>
+        cartItem.title == newItem.title &&
+        cartItem.description == newItem.description);
 
-    await userDocRef.update({
-      'cartItems': FieldValue.arrayUnion([cartItem])
-    });
+    if (index != -1) {
+      // If item exists, increment the quantity
+      cartItems[index].quantity++;
+    } else {
+      // If item doesn't exist, add it to the cart
+      cartItems.add(newItem);
+    }
 
-    // Update the local cartItems list
-    cartItems.add(item);
+    // Update Firestore with the updated cart
+    List<Map<String, String>> updatedCart =
+        cartItems.map((item) => item.toMap()).toList();
+    await userDocRef.update({'cartItems': updatedCart});
   }
 
-  Future<void> removeFromCart(CartItem item) async {
+  Future<void> removeFromCart(CartItem cartItem) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
     final userDocRef =
         FirebaseFirestore.instance.collection('users').doc(userId);
 
-    Map<String, String> cartItem = item.toMap();
+    // Find the index of the cart item in the local list
+    final existingItemIndex = cartItems.indexWhere(
+      (item) =>
+          item.title == cartItem.title &&
+          item.description == cartItem.description &&
+          item.price == cartItem.price &&
+          item.image == cartItem.image,
+    );
 
-    await userDocRef.update({
-      'cartItems': FieldValue.arrayRemove([cartItem])
-    });
+    if (existingItemIndex != -1) {
+      CartItem existingItem = cartItems[existingItemIndex];
 
-    // Update the local cartItems list
-    cartItems.remove(item);
-  }
+      // Get the quantity
+      int quantity = existingItem.quantity;
 
-  // Method to fetch cart data from Firestore and convert to List<CartItem>
-  Future<void> fetchCartItems() async {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-    final userDocRef =
-        FirebaseFirestore.instance.collection('users').doc(userId);
+      if (quantity > 1) {
+        // If quantity is more than 1, decrement the quantity
+        existingItem.quantity -= 1;
 
-    final userSnapshot = await userDocRef.get();
+        // Update the local cart
+        cartItems[existingItemIndex] = existingItem;
 
-    if (userSnapshot.exists && userSnapshot.data() != null) {
-      List<dynamic> cartData = userSnapshot.data()!['cartItems'] ?? [];
+        List<Map<String, String>> updatedCart =
+            cartItems.map((item) => item.toMap()).toList();
+        await userDocRef.update({'cartItems': updatedCart});
+      } else {
+        // If quantity is 1, remove the item from both local and Firestore
+        cartItems.removeAt(existingItemIndex);
 
-      // Convert each Map<String, String> back to CartItem
-      List<CartItem> fetchedItems = cartData.map((item) {
-        return CartItem(
-          title: item['title'] ?? '',
-          description: item['description'] ?? '',
-          price: item['price'] ?? '0.0',
-          image: item['image'] ?? '',
-        );
-      }).toList();
-
-      // Update the observable cartItems list
-      cartItems.value = fetchedItems;
+        await userDocRef.update({
+          'cartItems': FieldValue.arrayRemove([existingItem.toMap()]),
+        });
+      }
     }
   }
 
   double get totalCartPrice {
-    return cartItems.fold(0, (sum, item) => sum + double.parse(item.price));
+    return cartItems.fold(
+        0, (sum, item) => sum + double.parse(item.price) * item.quantity);
+  }
+
+  // Fetch cart items from Firestore and update cartItems
+  Future<void> fetchCartItems() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      final userDocRef =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+
+      // Fetch the user document
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      // Check if the document exists
+      if (userDoc.exists) {
+        // Use the null-aware operator to safely access 'cartItems'
+        List<dynamic> cartItemsFromFirestore = userDoc['cartItems'] ?? [];
+
+        // Map the fetched items to your CartItem model
+        cartItems.value = cartItemsFromFirestore
+            .map((cartItemMap) => CartItem.fromMap(cartItemMap))
+            .toList();
+      } else {
+        print("User document does not exist.");
+        // Optionally initialize cartItems to an empty list
+        cartItems.value = [];
+      }
+    } catch (e) {
+      print('Error fetching cart items: $e');
+      // Optionally handle errors (e.g., show a notification to the user)
+    }
   }
 }

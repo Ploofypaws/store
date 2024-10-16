@@ -1,14 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencystore/features/store/product/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math';
 
-import 'package:get/get_core/src/get_main.dart';
-
 class ProductSearchScreen extends StatelessWidget {
   final String searchQuery;
   final List<String> categories = ["Torch", "Handles", "Camera"];
-  final List<String> productNames = [
+  List<String> productNames = [
     "Torch ABC-100",
     "Torch XYZ-200",
     "Torch 123-400",
@@ -17,16 +16,38 @@ class ProductSearchScreen extends StatelessWidget {
     "Torch - Super"
   ];
 
-  ProductSearchScreen({super.key, required this.searchQuery});
+  ProductSearchScreen({super.key, required this.searchQuery}) {
+    _fetchProducts();
+  }
+
+  Future<void> _fetchProducts() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('products').get();
+
+    // Assuming your Firestore documents have a 'name' field
+    productNames = snapshot.docs.map((doc) {
+      print(doc['name']);
+      return '';
+    }).toList();
+  }
 
   List<String> _filterProducts(String query) {
-    return productNames.where((product) => product.toLowerCase().contains(query.toLowerCase())).toList();
+    if (query.isEmpty)
+      return productNames; // Return all products if the query is empty
+
+    final pattern =
+        RegExp(r'\b$query\b', caseSensitive: false); // Create a regex pattern
+
+    return productNames
+        .where((product) => pattern
+            .hasMatch(product)) // Check if the product name matches the pattern
+        .toList();
   }
 
   List<String> _getRandomProducts() {
-    // Generate a random selection of products if no results match
     Random random = Random();
-    return List<String>.generate(3, (index) => productNames[random.nextInt(productNames.length)]);
+    return List<String>.generate(
+        3, (index) => productNames[random.nextInt(productNames.length)]);
   }
 
   @override
@@ -40,7 +61,8 @@ class ProductSearchScreen extends StatelessWidget {
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 12.0),
                   child: Row(
                     children: [
                       IconButton(
@@ -68,7 +90,8 @@ class ProductSearchScreen extends StatelessWidget {
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: 'Search for anything...',
-                                prefixIcon: const Icon(Icons.search, color: Colors.black),
+                                prefixIcon: const Icon(Icons.search,
+                                    color: Colors.black),
                                 border: InputBorder.none,
                                 contentPadding: const EdgeInsets.all(12.0),
                               ),
@@ -80,19 +103,20 @@ class ProductSearchScreen extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
+                        icon: const Icon(Icons.shopping_bag_outlined,
+                            color: Colors.black),
                         onPressed: () {},
                       ),
                     ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0, left: 16, right: 16),
+                  padding:
+                      const EdgeInsets.only(bottom: 16.0, left: 16, right: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-
                         filteredProducts.isNotEmpty
                             ? "Showing results for ‘$searchQuery’"
                             : "No results found for ‘$searchQuery’",
@@ -104,7 +128,6 @@ class ProductSearchScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -114,12 +137,17 @@ class ProductSearchScreen extends StatelessWidget {
                       return ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          backgroundColor: category == "Torch" ? Colors.redAccent : Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          backgroundColor: category == "Torch"
+                              ? Colors.redAccent
+                              : Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          shadowColor: category == "Torch" ? Colors.redAccent.shade200 : Colors.grey.shade200,
+                          shadowColor: category == "Torch"
+                              ? Colors.redAccent.shade200
+                              : Colors.grey.shade200,
                           elevation: category == "Torch" ? 8 : 2,
                         ),
                         child: Row(
@@ -128,15 +156,19 @@ class ProductSearchScreen extends StatelessWidget {
                               category == "Torch"
                                   ? Icons.flash_on
                                   : category == "Handles"
-                                  ? Icons.accessibility
-                                  : Icons.camera_alt,
-                              color: category == "Torch" ? Colors.white : Colors.black87,
+                                      ? Icons.accessibility
+                                      : Icons.camera_alt,
+                              color: category == "Torch"
+                                  ? Colors.white
+                                  : Colors.black87,
                             ),
                             const SizedBox(width: 5),
                             Text(
                               category,
                               style: TextStyle(
-                                color: category == "Torch" ? Colors.white : Colors.black87,
+                                color: category == "Torch"
+                                    ? Colors.white
+                                    : Colors.black87,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -157,11 +189,13 @@ class ProductSearchScreen extends StatelessWidget {
               bottom: 20,
               left: 20,
               child: FloatingActionButton.extended(
+                heroTag: 'sort_fab', // Unique tag for this FAB
                 onPressed: () {},
                 backgroundColor: Colors.black,
                 label: const Text(
                   "SORT",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 icon: const Icon(Icons.sort, color: Colors.white),
                 elevation: 5,
@@ -171,6 +205,7 @@ class ProductSearchScreen extends StatelessWidget {
               bottom: 20,
               right: 20,
               child: FloatingActionButton.extended(
+                heroTag: 'filter_fab', // Unique tag for this FAB
                 onPressed: () {},
                 backgroundColor: Colors.redAccent,
                 label: const Text(
@@ -193,7 +228,10 @@ class ProductSearchScreen extends StatelessWidget {
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: GestureDetector(onTap:() =>Get.to(() =>  ProductDetailPage()),child: ProductCard(productName: products[index])),
+          child: GestureDetector(
+            onTap: () => Get.to(() => ProductDetailPage()),
+            child: ProductCard(productName: products[index]),
+          ),
         );
       },
     );
@@ -207,7 +245,10 @@ class ProductSearchScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 16.0),
           child: Text(
             "No results found.",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black54),
           ),
         ),
         Expanded(
@@ -292,7 +333,8 @@ class ProductCard extends StatelessWidget {
                   ),
                   child: const Text(
                     "Buy",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
